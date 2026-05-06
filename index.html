@@ -33,13 +33,14 @@
           style="transform: translate(-50%, -50%); width: 300px; height: 400px; max-width: 95vw; max-height: 85vh; box-shadow: 0px 0px 50px rgba(0, 0, 0, 0.3);"
         >
           <div class="relative w-full h-full rounded-2xl overflow-hidden">
-            <img
+            <video
               id="media"
-              src="closeup.jpg"
-              alt="Featured media"
+              src="15638525-hd_1080_1920_60fps.mp4"
+              autoplay muted loop playsinline
+              preload="auto"
               class="w-full h-full object-cover"
-            />
-            <div id="media-overlay" class="absolute inset-0 bg-black/50" style="opacity: 0.7;"></div>
+            ></video>
+            <div id="media-overlay" class="absolute inset-0 bg-black/30" style="opacity: 0.5;"></div>
           </div>
 
           <div id="media-text" class="flex flex-col items-center text-center relative z-10 mt-4">
@@ -110,7 +111,7 @@
 
       bgLayer.style.opacity = 1 - p;
 
-      mediaOverlay.style.opacity = 0.7 - p * 0.3;
+      mediaOverlay.style.opacity = 0.5 - p * 0.3;
 
       const flyDistance = isMobile ? 180 : 150;
       const flyAmount = p * flyDistance;
