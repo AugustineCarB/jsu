@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Just Show Up</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html, body { margin: 0; padding: 0; }
+    body.locked { overflow: hidden; }
+    #hero { height: 100dvh; }
+    #content { opacity: 0; transition: opacity 0.7s ease; }
+    #content.visible { opacity: 1; }
+    .fly-text { will-change: transform, opacity; }
+    #media-wrapper { will-change: width, height; }
+  </style>
+</head>
+<body class="bg-black locked">
+
+  <section id="hero" class="relative w-full overflow-hidden">
+
+    <div id="bg-layer" class="absolute inset-0 z-0">
+      <img src="city.jpg" alt="Background" class="w-full h-full object-cover object-center" />
+      <div class="absolute inset-0 bg-black/10"></div>
+    </div>
+
+    <div class="container mx-auto flex flex-col items-center justify-start relative z-10">
+      <div class="flex flex-col items-center justify-center w-full h-[100dvh] relative">
+
+        <div
+          id="media-wrapper"
+          class="absolute z-0 top-1/2 left-1/2"
+          style="transform: translate(-50%, -50%); width: 300px; height: 400px; max-width: 95vw; max-height: 85vh; box-shadow: 0px 0px 50px rgba(0, 0, 0, 0.3);"
+        >
+          <div class="relative w-full h-full rounded-2xl overflow-hidden">
+            <img
+              id="media"
+              src="closeup.jpg"
+              alt="Featured media"
+              class="w-full h-full object-cover"
+            />
+            <div id="media-overlay" class="absolute inset-0 bg-black/50" style="opacity: 0.7;"></div>
+          </div>
+
+          <div id="media-text" class="flex flex-col items-center text-center relative z-10 mt-4">
+            <p id="date-text" class="fly-text text-2xl text-blue-200">MAY 2026</p>
+            <p id="scroll-hint" class="fly-text text-blue-200 font-medium text-center">scroll to expand</p>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-center text-center gap-4 w-full relative z-10 flex-col mix-blend-difference pointer-events-none">
+          <h2 id="title-first" class="fly-text text-4xl md:text-5xl lg:text-6xl font-bold text-blue-200">JUST</h2>
+          <h2 id="title-rest" class="fly-text text-4xl md:text-5xl lg:text-6xl font-bold text-center text-blue-200">SHOW UP</h2>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="content" class="bg-black px-8 py-10 md:px-16 lg:py-20">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-3xl md:text-4xl font-bold mb-8 text-blue-200">The City Awaits</h2>
+      <p class="text-gray-300 text-lg leading-relaxed mb-6">
+        There's something about a city at golden hour — the way light bends between towers and spills across the waterfront. Every street corner becomes an invitation, every skyline a reminder that showing up is the first step to something extraordinary.
+      </p>
+      <p class="text-gray-300 text-lg leading-relaxed mb-6">
+        From the aerial expanse of the skyline to the intimate hum of pedestrian walkways strung with lights, the city holds both the vast and the personal. It asks nothing of you except your presence.
+      </p>
+      <p class="text-gray-400 text-base leading-relaxed">
+        Just show up. The rest will follow.
+      </p>
+    </div>
+  </section>
+
+  <script>
+    let scrollProgress = 0;
+    let isExpanded = false;
+    let isMobile = window.innerWidth < 768;
+    let touchStartY = 0;
+    let needsRender = false;
+
+    const INITIAL_W = 300;
+    const INITIAL_H = 400;
+    let maxW, maxH;
+
+    const bgLayer = document.getElementById('bg-layer');
+    const mediaWrapper = document.getElementById('media-wrapper');
+    const mediaOverlay = document.getElementById('media-overlay');
+    const titleFirst = document.getElementById('title-first');
+    const titleRest = document.getElementById('title-rest');
+    const dateText = document.getElementById('date-text');
+    const scrollHint = document.getElementById('scroll-hint');
+    const content = document.getElementById('content');
+
+    function computeMaxSizes() {
+      isMobile = window.innerWidth < 768;
+      const rawW = isMobile ? 950 : 1550;
+      const rawH = isMobile ? 600 : 800;
+      maxW = Math.min(rawW, window.innerWidth * 0.95);
+      maxH = Math.min(rawH, window.innerHeight * 0.85);
+    }
+
+    function applyProgress() {
+      const p = scrollProgress;
+
+      const w = INITIAL_W + (maxW - INITIAL_W) * p;
+      const h = INITIAL_H + (maxH - INITIAL_H) * p;
+      mediaWrapper.style.width = w + 'px';
+      mediaWrapper.style.height = h + 'px';
+
+      bgLayer.style.opacity = 1 - p;
+
+      mediaOverlay.style.opacity = 0.7 - p * 0.3;
+
+      const flyDistance = isMobile ? 180 : 150;
+      const flyAmount = p * flyDistance;
+      titleFirst.style.transform = 'translateX(-' + flyAmount + 'vw)';
+      titleRest.style.transform = 'translateX(' + flyAmount + 'vw)';
+      dateText.style.transform = 'translateX(-' + flyAmount + 'vw)';
+      scrollHint.style.transform = 'translateX(' + flyAmount + 'vw)';
+
+      needsRender = false;
+    }
+
+    function scheduleRender() {
+      if (!needsRender) {
+        needsRender = true;
+        requestAnimationFrame(applyProgress);
+      }
+    }
+
+    function handleDelta(delta) {
+      if (!isExpanded) {
+        scrollProgress = Math.max(0, Math.min(1, scrollProgress + delta));
+        scheduleRender();
+
+        if (scrollProgress >= 1) {
+          isExpanded = true;
+          document.body.classList.remove('locked');
+          content.classList.add('visible');
+        }
+      }
+    }
+
+    function collapseBack() {
+      isExpanded = false;
+      document.body.classList.add('locked');
+      content.classList.remove('visible');
+      window.scrollTo(0, 0);
+    }
+
+    window.addEventListener('wheel', function(e) {
+      if (!isExpanded) {
+        e.preventDefault();
+        handleDelta(e.deltaY * 0.0009);
+      } else if (window.scrollY <= 5 && e.deltaY < 0) {
+        e.preventDefault();
+        collapseBack();
+        handleDelta(e.deltaY * 0.0009);
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchstart', function(e) {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    window.addEventListener('touchmove', function(e) {
+      if (!touchStartY) return;
+      const touchY = e.touches[0].clientY;
+      const deltaY = touchStartY - touchY;
+
+      if (!isExpanded) {
+        e.preventDefault();
+        const sensitivity = deltaY < 0 ? 0.008 : 0.005;
+        handleDelta(deltaY * sensitivity);
+      } else if (window.scrollY <= 5 && deltaY < -20) {
+        e.preventDefault();
+        collapseBack();
+        handleDelta(deltaY * 0.008);
+      }
+
+      touchStartY = touchY;
+    }, { passive: false });
+
+    window.addEventListener('touchend', function() {
+      touchStartY = 0;
+    });
+
+    window.addEventListener('scroll', function() {
+      if (!isExpanded) {
+        window.scrollTo(0, 0);
+      }
+    });
+
+    window.addEventListener('resize', function() {
+      computeMaxSizes();
+      scheduleRender();
+    });
+
+    computeMaxSizes();
+    applyProgress();
+  </script>
+
+</body>
+</html>
