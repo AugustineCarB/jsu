@@ -80,8 +80,7 @@
     let touchStartY = 0;
     let needsRender = false;
 
-    const INITIAL_W = 300;
-    const INITIAL_H = 400;
+    let initialW, initialH;
     let maxW, maxH;
 
     const bgLayer = document.getElementById('bg-layer');
@@ -95,17 +94,19 @@
 
     function computeMaxSizes() {
       isMobile = window.innerWidth < 768;
+      initialW = isMobile ? 240 : 300;
+      initialH = isMobile ? 340 : 400;
       const rawW = isMobile ? 950 : 1550;
-      const rawH = isMobile ? 600 : 800;
-      maxW = Math.min(rawW, window.innerWidth * 0.95);
-      maxH = Math.min(rawH, window.innerHeight * 0.85);
+      const rawH = isMobile ? 900 : 800;
+      maxW = Math.min(rawW, window.innerWidth * 0.98);
+      maxH = Math.min(rawH, window.innerHeight * 0.92);
     }
 
     function applyProgress() {
       const p = scrollProgress;
 
-      const w = INITIAL_W + (maxW - INITIAL_W) * p;
-      const h = INITIAL_H + (maxH - INITIAL_H) * p;
+      const w = initialW + (maxW - initialW) * p;
+      const h = initialH + (maxH - initialH) * p;
       mediaWrapper.style.width = w + 'px';
       mediaWrapper.style.height = h + 'px';
 
